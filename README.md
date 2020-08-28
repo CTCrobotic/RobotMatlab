@@ -14,3 +14,7 @@ $({\tau ^k} =  - {k_p}({q^k} + \Delta t \cdot {\dot q^k} - q_{ref}^{k + 1}) - {k
 {}&{(SPD)}
 \end{array})$
 稳定PD控制，使用平面二连杆演示了同样pd参数下的控制效果，正在编辑中
+
+```math
+e^{i\pi} + 1 = 0
+```
