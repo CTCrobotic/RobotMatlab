@@ -1,6 +1,6 @@
 classdef RobotLink
    properties
-      clRobot = robotics.RigidBodyTree('DataFormat','column','MaxNumBodies',1);   %robotic toolbox 工具集产生的类
+      clRobot = robotics.RigidBodyTree('DataFormat','column','MaxNumBodies',1);   %robotic toolbox 工具集产生的类 输入的数据应该是列向量
       sRobotName   % 机器人的名称
       sBaseStyle % 基座的类型
       nNumLink % 连杆的数量
@@ -10,7 +10,7 @@ classdef RobotLink
       vLinkSister
       mJointName % 关节名称
       mLinkName % 连杆名称
-      vL
+      vLinkLength % 连杆的长度
    end
 
    properties (SetAccess = private)
@@ -34,7 +34,7 @@ classdef RobotLink
            obj.vLinkChild = LinkChild;
            obj.mLinkName = LinkName;
            obj.mJointName = JointName;
-           obj.vL = L;
+           obj.vLinkLength = L;
        end
        
        function obj = setJointInform(obj,JointAxis,JointRelatPos,JointStyle)
@@ -49,6 +49,8 @@ classdef RobotLink
                        obj.mJointAxis{JA_k}= [0 1 0];
                    case 2
                        obj.mJointAxis{JA_k}= [0 0 1];
+                   case 3
+                       obj.mJointAxis{JA_k}= nan;
                    otherwise
                end
            end
@@ -72,7 +74,7 @@ classdef RobotLink
            end
        end
        
-       function obj = setRobotInit(obj)
+       function obj = setRobotInit(obj,LinkMass,LinkCoMass,LinkInertia)
            Robot = robotics.RigidBodyTree('DataFormat','column','MaxNumBodies',obj.nNumLink);
            if(obj.nNumLink<=0)
                error('number of link cann`t be zero!')
@@ -82,27 +84,34 @@ classdef RobotLink
                    switch(obj.sBaseStyle) 
                         case 'base'
                             body = robotics.RigidBody(obj.mLinkName{link_n});
+                            body.Mass = LinkMass(link_n);
+                            body.CenterOfMass = LinkCoMass{link_n};
+                            body.Inertia = LinkInertia{link_n};
                             joint = robotics.Joint(obj.mJointName{link_n}, obj.mJointStyle{link_n});
                             setFixedTransform(joint,trvec2tform(obj.mJointRelatPos{link_n}));
-                            joint.JointAxis = obj.mJointAxis{link_n};
+                            if(~isnan(obj.mJointAxis{link_n}))
+                                joint.JointAxis = obj.mJointAxis{link_n};
+                            end
                             body.Joint = joint;
                             addBody(Robot, body, 'base');
                        otherwise
                    end
                else
                    body = robotics.RigidBody(obj.mLinkName{link_n});
+                   body.Mass = LinkMass(link_n);
+                   body.CenterOfMass = LinkCoMass{link_n};
+                   body.Inertia = LinkInertia{link_n};
                    joint = robotics.Joint(obj.mJointName{link_n}, obj.mJointStyle{link_n});
                    setFixedTransform(joint, trvec2tform(obj.mJointRelatPos{link_n}));
-                   joint.JointAxis = obj.mJointAxis{link_n};
+                   if(~isnan(obj.mJointAxis{link_n}))
+                        joint.JointAxis = obj.mJointAxis{link_n};
+                   end
                    body.Joint = joint;
                    addBody(Robot, body, obj.mLinkName{obj.vLinkMother(link_n)});
                end
-           end 
+           end
+           Robot.Gravity = [0 0 -9.81];
            obj.clRobot = Robot;
-       end
-       
-       function obj = setRobotDynamic(obj)
-           
        end
    end
 end

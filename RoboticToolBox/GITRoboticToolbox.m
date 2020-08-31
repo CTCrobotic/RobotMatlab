@@ -4,8 +4,10 @@ clc
 
 addpath('RobotClass');
 %% 
-%通过RobotLink类建立机器人模型
+
 %所有变量的选取都是在初始坐标系中得到的
+RobotName = 'TL';
+RobotBaseStyle = 'base';
 LinkN = 3; JointN = 3;
 LinkMother = [0 1 2];
 LinkChild = [1 2 0];  %暂时还没有用到
@@ -13,15 +15,23 @@ LinkSister = [0 0 0];
 LinkName = {'link1', 'link2', 'tool'};
 JointName = {'joint1','joint2','fixed'};
 JointStyle = [0 0 2]; % 0 1 2 分别表示旋转 移动 固定关节类型
-JointAxis = [2 2 2]; % 0 1 2 分别表示x y z轴旋转
+JointAxis = [2 2 3]; % 0 1 2 分别表示x y z轴旋转 3 表示固定 无旋转
 L = [0,0.2,0.3]; % 连杆的长度
-JointRelatP = {[L(1) 0 0],[L(2) 0 0],[L(3) 0 0]};
+JointRelatP = {[L(1) 0 0],[L(2) 0 0],[L(3) 0 0]}; % 在零位上，下一个关节相对上一个关节坐标系的位置
 
-twoLinks = RobotLink('TL','base',LinkN,JointN);
+%% 动力学参数
+LinkMass = [1 1 1];
+LinkCoM = {[0 0 0],[0 0 0],[0 0 0]};
+LinkInertia = {[1 1 1 0 0 0],[1 1 1 0 0 0],[1 1 1 0 0 0]};
+
+%% 通过RobotLink类建立机器人模型
+twoLinks = RobotLink(RobotName,RobotBaseStyle,LinkN,JointN);
 twoLinks = twoLinks.setLinkConnect(LinkMother,LinkChild,LinkSister,LinkName,JointName,L);
 twoLinks = twoLinks.setJointInform(JointAxis,JointRelatP,JointStyle);
-twoLinks = twoLinks.setRobotInit();
-%%
+twoLinks = twoLinks.setRobotInit(LinkMass,LinkCoM,LinkInertia);
+
+
+%%  下面是依据自带的示例代码 计算逆运动学
 % Show details of the robot to validate the input properties. The robot
 % should have two non-fixed joints for the rigid bodies and a fixed body
 % for the end-effector.
