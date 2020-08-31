@@ -10,13 +10,13 @@ classdef RobotLink
       vLinkSister
       mJointName % 关节名称
       mLinkName % 连杆名称
-      L
+      vL
    end
 
    properties (SetAccess = private)
       mJointStyle = [];% 每个关节的类型 默认是旋转
       mJointAxis = [];  % 关节转轴的方向
-      mJointRelatPos = [];
+      mJointRelatPos = []; % 包括第一个关节相对于世界坐标系的位置 所以数量应该等于关节数量
    end
    
    methods
@@ -34,12 +34,12 @@ classdef RobotLink
            obj.vLinkChild = LinkChild;
            obj.mLinkName = LinkName;
            obj.mJointName = JointName;
-           obj.L = L;
+           obj.vL = L;
        end
        
-       function obj = setJointAxis(obj,JointAxis)
+       function obj = setJointInform(obj,JointAxis,JointRelatPos,JointStyle)
            if(~(obj.nNumJoint == size(JointAxis,2)))
-               error('JointStyle number don`t equit nNumJoint!')
+               error('JointAxis number don`t equit nNumJoint!')
            end
            for JS_k = 1:size(JointAxis,2)
                switch (JointAxis(JS_k))
@@ -52,13 +52,14 @@ classdef RobotLink
                    otherwise
                end
            end
-       end
-       
-       function obj = setJointRelatPos(obj,JointRelatPos)
            if(~(obj.nNumJoint == size(JointRelatPos,2)))
                error('JointRelatPos number don`t equit nNumJoint!')
            end
            obj.mJointRelatPos = JointRelatPos;
+           if(~(obj.nNumJoint == size(JointStyle,2)))
+               error('JointStyle number don`t equit nNumJoint!')
+           end
+           
        end
        
        function obj = setRobotInit(obj)
@@ -72,7 +73,7 @@ classdef RobotLink
                         case 'base'
                             body = robotics.RigidBody(obj.mLinkName{link_n});
                             joint = robotics.Joint(obj.mJointName{link_n}, 'revolute');
-                            setFixedTransform(joint,trvec2tform([obj.L(link_n) 0 0]));
+                            setFixedTransform(joint,trvec2tform(obj.mJointRelatPos{link_n}));
                             joint.JointAxis = obj.mJointAxis{link_n};
                             body.Joint = joint;
                             addBody(Robot, body, 'base');
@@ -81,7 +82,7 @@ classdef RobotLink
                else
                    body = robotics.RigidBody(obj.mLinkName{link_n});
                    joint = robotics.Joint(obj.mJointName{link_n},'revolute');
-                   setFixedTransform(joint, trvec2tform([obj.L(link_n),0,0]));
+                   setFixedTransform(joint, trvec2tform(obj.mJointRelatPos{link_n}));
                    joint.JointAxis = obj.mJointAxis{link_n};
                    body.Joint = joint;
                    addBody(Robot, body, obj.mLinkName{obj.vLinkMother(link_n)});

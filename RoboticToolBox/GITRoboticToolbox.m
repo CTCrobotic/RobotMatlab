@@ -12,11 +12,14 @@ LinkChild = [1 2 0];  %暂时还没有用到
 LinkSister = [0 0 0];
 LinkName = {'link1', 'link2', 'tool'};
 JointName = {'joint1','joint2','fixed'};
+JointStyle = [0 0 2]; % 0 1 2 分别表示旋转 移动 固定关节类型
 JointAxis = [2 2 2]; % 0 1 2 分别表示x y z轴旋转
-L = [0,0.3,0.3]; % 连杆的长度
+L = [0,0.2,0.3]; % 连杆的长度
+JointRelatP = {[L(1) 0 0],[L(2) 0 0],[L(3) 0 0]};
+
 twoLinks = RobotLink('TL','base',LinkN,JointN);
 twoLinks = twoLinks.setLinkConnect(LinkMother,LinkChild,LinkSister,LinkName,JointName,L);
-twoLinks = twoLinks.setJointAxis(JointAxis);
+twoLinks = twoLinks.setJointInform(JointAxis,JointRelatP,JointStyle);
 twoLinks = twoLinks.setRobotInit();
 %%
 % Show details of the robot to validate the input properties. The robot

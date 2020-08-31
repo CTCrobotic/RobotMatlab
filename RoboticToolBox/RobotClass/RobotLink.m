@@ -10,7 +10,7 @@ classdef RobotLink
       vLinkSister
       mJointName % 关节名称
       mLinkName % 连杆名称
-      L
+      vL
    end
 
    properties (SetAccess = private)
@@ -34,31 +34,42 @@ classdef RobotLink
            obj.vLinkChild = LinkChild;
            obj.mLinkName = LinkName;
            obj.mJointName = JointName;
-           obj.L = L;
+           obj.vL = L;
        end
        
-       function obj = setJointAxis(obj,JointAxis)
+       function obj = setJointInform(obj,JointAxis,JointRelatPos,JointStyle)
            if(~(obj.nNumJoint == size(JointAxis,2)))
-               error('JointStyle number don`t equit nNumJoint!')
+               error('JointAxis number don`t equit nNumJoint!')
            end
-           for JS_k = 1:size(JointAxis,2)
-               switch (JointAxis(JS_k))
+           for JA_k = 1:size(JointAxis,2)
+               switch (JointAxis(JA_k))
                    case 0
-                       obj.mJointAxis{JS_k}= [1 0 0];
+                       obj.mJointAxis{JA_k}= [1 0 0];
                    case 1
-                       obj.mJointAxis{JS_k}= [0 1 0];
+                       obj.mJointAxis{JA_k}= [0 1 0];
                    case 2
-                       obj.mJointAxis{JS_k}= [0 0 1];
+                       obj.mJointAxis{JA_k}= [0 0 1];
                    otherwise
                end
            end
-       end
-       
-       function obj = setJointRelatPos(obj,JointRelatPos)
            if(~(obj.nNumJoint == size(JointRelatPos,2)))
                error('JointRelatPos number don`t equit nNumJoint!')
            end
            obj.mJointRelatPos = JointRelatPos;
+           if(~(obj.nNumJoint == size(JointStyle,2)))
+               error('JointStyle number don`t equit nNumJoint!')
+           end
+           for JS_k = 1:size(JointStyle,2)
+               switch (JointStyle(JS_k))
+                   case 0
+                       obj.mJointStyle{JS_k}= 'revolute';
+                   case 1
+                       obj.mJointStyle{JS_k}= 'prismatic';
+                   case 2
+                       obj.mJointStyle{JS_k}= 'fixed';
+                   otherwise
+               end
+           end
        end
        
        function obj = setRobotInit(obj)
@@ -71,8 +82,8 @@ classdef RobotLink
                    switch(obj.sBaseStyle) 
                         case 'base'
                             body = robotics.RigidBody(obj.mLinkName{link_n});
-                            joint = robotics.Joint(obj.mJointName{link_n}, 'revolute');
-                            setFixedTransform(joint,trvec2tform([obj.L(link_n) 0 0]));
+                            joint = robotics.Joint(obj.mJointName{link_n}, obj.mJointStyle{link_n});
+                            setFixedTransform(joint,trvec2tform(obj.mJointRelatPos{link_n}));
                             joint.JointAxis = obj.mJointAxis{link_n};
                             body.Joint = joint;
                             addBody(Robot, body, 'base');
@@ -80,8 +91,8 @@ classdef RobotLink
                    end
                else
                    body = robotics.RigidBody(obj.mLinkName{link_n});
-                   joint = robotics.Joint(obj.mJointName{link_n},'revolute');
-                   setFixedTransform(joint, trvec2tform([obj.L(link_n),0,0]));
+                   joint = robotics.Joint(obj.mJointName{link_n}, obj.mJointStyle{link_n});
+                   setFixedTransform(joint, trvec2tform(obj.mJointRelatPos{link_n}));
                    joint.JointAxis = obj.mJointAxis{link_n};
                    body.Joint = joint;
                    addBody(Robot, body, obj.mLinkName{obj.vLinkMother(link_n)});
