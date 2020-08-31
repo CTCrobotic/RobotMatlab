@@ -95,7 +95,3 @@ for i = 1:count
     drawnow
     waitfor(r);
 end
-
-
-%% 
-% Copyright 2012 The MathWorks, Inc.
