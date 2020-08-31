@@ -3,15 +3,19 @@ clear
 clc
 
 addpath('RobotClass');
-
-twoLinks = RobotLink('TL','base',3,3);
+%% 
+%通过RobotLink类建立机器人模型
+LinkN = 3; JointN = 3;
 LinkMother = [0 1 2];
 LinkChild = [1 2 0];
 LinkSister = [0 0 0];
 LinkName = {'link1', 'link2', 'tool'};
 JointName = {'joint1','joint2','fixed'};
+JointAxis = [2 2 2];
 L = [0,0.3,0.3];
+twoLinks = RobotLink('TL','base',LinkN,JointN);
 twoLinks = twoLinks.setLinkConnect(LinkMother,LinkChild,LinkSister,LinkName,JointName,L);
+twoLinks = twoLinks.setJointAxis(JointAxis);
 twoLinks = twoLinks.setRobotInit();
 %%
 % Show details of the robot to validate the input properties. The robot
