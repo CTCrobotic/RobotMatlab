@@ -1,21 +1,22 @@
 classdef RobotLink
    properties
       clRobot = robotics.RigidBodyTree('DataFormat','column','MaxNumBodies',1);   %robotic toolbox 工具集产生的类
-      sRobotName   %
-      sBaseStyle 
-      nNumLink
-      nNumJoint
+      sRobotName   % 机器人的名称
+      sBaseStyle % 基座的类型
+      nNumLink % 连杆的数量
+      nNumJoint % 关节的数量
       vLinkMother % tree 结构命名法
-      vLinkChild
+      vLinkChild 
       vLinkSister
-      mJointName
-      mLinkName
+      mJointName % 关节名称
+      mLinkName % 连杆名称
       L
    end
 
    properties (SetAccess = private)
-      mJointStyle
-      mJointAxis = [];
+      mJointStyle = [];% 每个关节的类型 默认是旋转
+      mJointAxis = [];  % 关节转轴的方向
+      mJointRelatPos = [];
    end
    
    methods
@@ -53,6 +54,13 @@ classdef RobotLink
            end
        end
        
+       function obj = setJointRelatPos(obj,JointRelatPos)
+           if(~(obj.nNumJoint == size(JointRelatPos,2)))
+               error('JointRelatPos number don`t equit nNumJoint!')
+           end
+           obj.mJointRelatPos = JointRelatPos;
+       end
+       
        function obj = setRobotInit(obj)
            Robot = robotics.RigidBodyTree('DataFormat','column','MaxNumBodies',obj.nNumLink);
            if(obj.nNumLink<=0)
@@ -70,16 +78,15 @@ classdef RobotLink
                             addBody(Robot, body, 'base');
                        otherwise
                    end
+               else
+                   body = robotics.RigidBody(obj.mLinkName{link_n});
+                   joint = robotics.Joint(obj.mJointName{link_n},'revolute');
+                   setFixedTransform(joint, trvec2tform([obj.L(link_n),0,0]));
+                   joint.JointAxis = obj.mJointAxis{link_n};
+                   body.Joint = joint;
+                   addBody(Robot, body, obj.mLinkName{obj.vLinkMother(link_n)});
                end
-               body = robotics.RigidBody(obj.mLinkName{link_n});
-               joint = robotics.Joint(obj.mJointName{link_n},'revolute');
-               setFixedTransform(joint, trvec2tform([obj.L(link_n),0,0]));
-               joint.JointAxis = obj.mJointAxis{link_n};
-               body.Joint = joint;
-               addBody(Robot, body, obj.mLinkName{obj.vLinkMother(link_n)});
            end 
-           
-           
            obj.clRobot = Robot;
        end
        

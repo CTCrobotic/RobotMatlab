@@ -5,14 +5,15 @@ clc
 addpath('RobotClass');
 %% 
 %通过RobotLink类建立机器人模型
+%所有变量的选取都是在初始坐标系中得到的
 LinkN = 3; JointN = 3;
 LinkMother = [0 1 2];
-LinkChild = [1 2 0];
+LinkChild = [1 2 0];  %暂时还没有用到
 LinkSister = [0 0 0];
 LinkName = {'link1', 'link2', 'tool'};
 JointName = {'joint1','joint2','fixed'};
-JointAxis = [2 2 2];
-L = [0,0.3,0.3];
+JointAxis = [2 2 2]; % 0 1 2 分别表示x y z轴旋转
+L = [0,0.3,0.3]; % 连杆的长度
 twoLinks = RobotLink('TL','base',LinkN,JointN);
 twoLinks = twoLinks.setLinkConnect(LinkMother,LinkChild,LinkSister,LinkName,JointName,L);
 twoLinks = twoLinks.setJointAxis(JointAxis);

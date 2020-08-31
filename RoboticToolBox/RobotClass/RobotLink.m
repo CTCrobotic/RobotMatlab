@@ -1,21 +1,22 @@
 classdef RobotLink
    properties
       clRobot = robotics.RigidBodyTree('DataFormat','column','MaxNumBodies',1);   %robotic toolbox 工具集产生的类
-      sRobotName   %
-      sBaseStyle 
-      nNumLink
-      nNumJoint
+      sRobotName   % 机器人的名称
+      sBaseStyle % 基座的类型
+      nNumLink % 连杆的数量
+      nNumJoint % 关节的数量
       vLinkMother % tree 结构命名法
-      vLinkChild
+      vLinkChild 
       vLinkSister
-      mJointName
-      mLinkName
+      mJointName % 关节名称
+      mLinkName % 连杆名称
       L
    end
 
    properties (SetAccess = private)
-      mJointStyle
-      mJointAxis = [];
+      mJointStyle = [];% 每个关节的类型 默认是旋转
+      mJointAxis = [];  % 关节转轴的方向
+      mJointRelatPos = []; % 包括第一个关节相对于世界坐标系的位置 所以数量应该等于关节数量
    end
    
    methods
@@ -51,6 +52,13 @@ classdef RobotLink
                    otherwise
                end
            end
+       end
+       
+       function obj = setJointRelatPos(obj,JointRelatPos)
+           if(~(obj.nNumJoint == size(JointRelatPos,2)))
+               error('JointRelatPos number don`t equit nNumJoint!')
+           end
+           obj.mJointRelatPos = JointRelatPos;
        end
        
        function obj = setRobotInit(obj)
