@@ -18,7 +18,7 @@ twoLinks = twoLinks.setRobotInit();
 % should have two non-fixed joints for the rigid bodies and a fixed body
 % for the end-effector.
 robot = twoLinks.clRobot;
-showdetails(robot)
+showdetails()
 
 %% Define The Trajectory
 % Define a circle to be traced over the course of 10 seconds. This circle

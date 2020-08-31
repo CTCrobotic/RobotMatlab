@@ -31,7 +31,7 @@ classdef RobotLink
            obj.vLinkSister = LinkSister;
            obj.vLinkChild = LinkChild;
            obj.mLinkName = LinkName;
-           obj.mJointName = JointName;
+           obj.mJoinrName = JointName;
            obj.L = L;
        end
        
@@ -47,7 +47,7 @@ classdef RobotLink
                     setFixedTransform(joint,trvec2tform([obj.L(1) 0 0]));
                     joint.JointAxis = [0 0 1];
                     body.Joint = joint;
-                    addBody(Robot, body, 'base');
+                    addBody(robot, body, 'base');
                otherwise
            end
            for link_n = 2:obj.nNumLink
@@ -56,9 +56,18 @@ classdef RobotLink
                 setFixedTransform(joint, trvec2tform([obj.L(link_n),0,0]));
                 joint.JointAxis = [0 0 1];
                 body.Joint = joint;
-                addBody(Robot, body, obj.mLinkName{obj.vLinkMother(link_n)});
-           end 
-           obj.clRobot = Robot;
+                addBody(robot, body, obj.mLinkName{link_n});
+           end
+           %%
+% Add |'link2'| body with |'joint2'| joint.
+
+%%
+% Add |'tool'| end effector with |'fix1'| fixed joint.
+body = robotics.RigidBody('tool');
+joint = robotics.Joint('fix1','fixed');
+setFixedTransform(joint, trvec2tform([L2, 0, 0]));
+body.Joint = joint;
+addBody(robot, body, 'link2');        
        end
    end
 end
