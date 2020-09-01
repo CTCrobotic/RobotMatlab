@@ -87,6 +87,7 @@ classdef RobotLink
                             body.Mass = LinkMass(link_n);
                             body.CenterOfMass = LinkCoMass{link_n};
                             body.Inertia = LinkInertia{link_n};
+                            body.addVisual('Mesh','link5.stl')
                             joint = robotics.Joint(obj.mJointName{link_n}, obj.mJointStyle{link_n});
                             setFixedTransform(joint,trvec2tform(obj.mJointRelatPos{link_n}));
                             if(~isnan(obj.mJointAxis{link_n}))
@@ -99,6 +100,7 @@ classdef RobotLink
                else
                    body = robotics.RigidBody(obj.mLinkName{link_n});
                    body.Mass = LinkMass(link_n);
+                   body.addVisual('Mesh','link5.stl')
                    body.CenterOfMass = LinkCoMass{link_n};
                    body.Inertia = LinkInertia{link_n};
                    joint = robotics.Joint(obj.mJointName{link_n}, obj.mJointStyle{link_n});
